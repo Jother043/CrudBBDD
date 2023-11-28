@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 
 public class UsersBBDD {
@@ -85,7 +86,7 @@ public class UsersBBDD {
                 preparedStatement.executeUpdate();
             }
         }
-        System.out.println("Usuario registrado correctamente");
+        System.out.println("** Usuario registrado correctamente... **");
     }
 
     /**
@@ -94,8 +95,13 @@ public class UsersBBDD {
      * @param userName;
      * @throws SQLException;
      */
-    public void deleteUser(int userName) throws SQLException {
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement("DELETE FROM usuarios WHERE usuario = ?")) {
+    public void deleteUser(int userName) throws SQLException, InputMismatchException {
+        for(Users user : getUsers()){
+            if(user.getIdUsuario() != userName){
+                throw new SQLException("El usuario no existe");
+            }
+        }
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement("DELETE FROM usuarios WHERE idUsuario = ?")) {
             preparedStatement.setInt(1, userName);
             preparedStatement.executeUpdate();
         }
@@ -111,6 +117,13 @@ public class UsersBBDD {
      * @throws SQLException;
      */
     public void updateUser(int idUser, String userName, String password, String name, String email) throws SQLException {
+
+        for(Users user : getUsers()){
+            if(user.getIdUsuario() != idUser){
+                throw new SQLException("El usuario no existe");
+            }
+        }
+
         if (userName.isEmpty() || password.isEmpty() || name.isEmpty() || email.isEmpty()) {
             throw new SQLException("Los campos no pueden estar vacíos");
         } else {
@@ -123,7 +136,7 @@ public class UsersBBDD {
                 preparedStatement.executeUpdate();
             }
         }
-        System.out.println("Usuario actualizado correctamente");
+        System.out.println("** Usuario actualizado correctamente... **");
     }
 
     /**

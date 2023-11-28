@@ -4,6 +4,8 @@ import org.Crud.Class.Users;
 import org.Crud.Controllers.UsersBBDD;
 
 import java.sql.SQLException;
+import java.util.InputMismatchException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
@@ -11,10 +13,32 @@ import java.util.Scanner;
 public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
+        UsersBBDD usersBBDD = new UsersBBDD();
+
+        System.out.println("Bienvenido a la aplicación de gestión de usuarios.");
+        System.out.println("-------------------------------------------------");
+        System.out.println("Creando usuarios predeterminados...");
+        //Create five users in the database with the following data:
+        Users user1 = new Users(1, "user1", "1234", "Jose", "user1@correo.com");
+        Users user2 = new Users(2, "user2", "1234", "Maria", "User2@correo.com");
+        Users user3 = new Users(3, "user3", "1234", "Juan", "User3@correo.com");
+        Users user4 = new Users(4, "user4", "1234", "Ana", "User4@correo.com");
+        Users user5 = new Users(5, "user5", "1234", "Pedro", "User5@correo.com");
+        //Add the users to the database
+        try {
+            usersBBDD.registerUser(user1.getUserName(), user1.getPassword(), user1.getName(), user1.getEmail());
+            usersBBDD.registerUser(user2.getUserName(), user2.getPassword(), user2.getName(), user2.getEmail());
+            usersBBDD.registerUser(user3.getUserName(), user3.getPassword(), user3.getName(), user3.getEmail());
+            usersBBDD.registerUser(user4.getUserName(), user4.getPassword(), user4.getName(), user4.getEmail());
+            usersBBDD.registerUser(user5.getUserName(), user5.getPassword(), user5.getName(), user5.getEmail());
+        } catch (SQLException e) {
+            System.err.println("Error al insertar el usuario. " + e.getMessage());
+        }
 
         int opcion = 0;
-        UsersBBDD usersBBDD = new UsersBBDD();
+
 
         do {
             System.out.println(menu());
@@ -32,7 +56,7 @@ public class Main {
                     try {
                         usersBBDD.registerUser(userName, password, name, email);
                     } catch (SQLException e) {
-                        System.err.println("Error al insertar el usuario " + e.getMessage());
+                        System.err.println("Error al insertar el usuario. " + e.getMessage());
                     }
                     break;
                 case 2:
@@ -67,10 +91,7 @@ public class Main {
                     try {
                         usersBBDD.updateUser(idUsuario, userNameUpdate, passwordUpdate, nameUpdate, emailUpdate);
                     } catch (SQLException e) {
-                        System.err.println("Error al actualizar el usuario" + e.getMessage());
-                        if (e.getErrorCode() == 19) {
-                            System.err.println("El nombre o el email ya existe");
-                        }
+                        System.err.println("Error al actualizar el usuario. " + e.getMessage());
                     }
                     break;
                 case 4:
@@ -79,15 +100,15 @@ public class Main {
                         for (Users user : usersBBDD.getUsers()) {
                             System.out.println(user);
                         }
-                    } catch (SQLException e) {
-                        System.err.println("Error al consultar los usuarios");
-                    }
-                    System.out.println("Introduce el id del usuario");
-                    int idUsuarioDelete = scanner.nextInt();
-                    try {
+
+                        System.out.println("Introduce el id del usuario");
+                        int idUsuarioDelete = scanner.nextInt();
+
                         usersBBDD.deleteUser(idUsuarioDelete);
                     } catch (SQLException e) {
-                        System.err.println("Error al eliminar el usuario" + e.getMessage());
+                        System.err.println("Error al eliminar el usuario. " + e.getMessage());
+                    } catch (InputMismatchException o) {
+                        throw new InputMismatchException("El id debe ser un número");
                     }
                     break;
                 case 5:
